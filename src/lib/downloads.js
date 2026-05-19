@@ -1,7 +1,8 @@
+import { apiUrl } from './api';
+
 const DB_NAME = 'audiosa_downloads';
 const DB_VERSION = 1;
 const STORE_NAME = 'tracks';
-const API_BASE = '/api';
 
 function openDownloadsDb() {
   return new Promise((resolve, reject) => {
@@ -83,7 +84,7 @@ export async function removeDownloadedTrack(id) {
 export async function downloadTrackToLibrary(track) {
   if (!track?.id) throw new Error('Track id is missing');
 
-  const res = await fetch(`${API_BASE}/audio/${track.id}`);
+  const res = await fetch(apiUrl(`/audio/${track.id}`));
   if (!res.ok) {
     const body = await res.json().catch(() => null);
     throw new Error(body?.error || 'Download failed');
@@ -101,5 +102,5 @@ export function createDownloadedTrackUrl(track) {
 export function browserDownloadUrl(track) {
   if (!track?.id) return '#';
   const title = sanitizeFileName(`${track.name || 'Track'} - ${track.artist || 'Audiosa'}`);
-  return `${API_BASE}/download/${track.id}?filename=${encodeURIComponent(title)}`;
+  return apiUrl(`/download/${track.id}?filename=${encodeURIComponent(title)}`);
 }

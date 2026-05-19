@@ -1,4 +1,4 @@
-const API_BASE = '/api';
+import { apiUrl, fetchJson } from './api';
 
 /**
  * Search YouTube Music via InnerTube proxy
@@ -6,9 +6,7 @@ const API_BASE = '/api';
  * @returns {Promise<Array>} array of track objects
  */
 export async function searchTracks(query) {
-  const res = await fetch(`${API_BASE}/search?q=${encodeURIComponent(query)}`);
-  if (!res.ok) throw new Error('Search failed');
-  const data = await res.json();
+  const data = await fetchJson(`/search?q=${encodeURIComponent(query)}`);
   return data.tracks || [];
 }
 
@@ -18,13 +16,11 @@ export async function searchTracks(query) {
  * @returns {Promise<{url: string, mimeType: string, bitrate: number}>}
  */
 export async function getStreamUrl(videoId) {
-  const res = await fetch(`${API_BASE}/stream/${videoId}`);
-  if (!res.ok) throw new Error('Stream URL fetch failed');
-  return res.json();
+  return fetchJson(`/stream/${videoId}`);
 }
 
 export function getPlayableAudioUrl(videoId) {
-  return `${API_BASE}/audio/${videoId}`;
+  return apiUrl(`/audio/${videoId}`);
 }
 
 /**
@@ -32,9 +28,7 @@ export function getPlayableAudioUrl(videoId) {
  * @returns {Promise<{shelves: Array}>}
  */
 export async function getHomeShelves() {
-  const res = await fetch(`${API_BASE}/home`);
-  if (!res.ok) throw new Error('Home fetch failed');
-  return res.json();
+  return fetchJson('/home');
 }
 
 /**
@@ -46,7 +40,9 @@ export async function getHomeShelves() {
 export async function getLyrics(trackName, artistName, duration) {
   const params = new URLSearchParams({ track: trackName, artist: artistName });
   if (duration) params.append('duration', duration);
-  const res = await fetch(`${API_BASE}/lyrics?${params}`);
-  if (!res.ok) return { syncedLyrics: null, plainLyrics: null };
-  return res.json();
+  try {
+    return await fetchJson(`/lyrics?${params}`);
+  } catch {
+    return { syncedLyrics: null, plainLyrics: null };
+  }
 }

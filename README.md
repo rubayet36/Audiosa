@@ -59,4 +59,7 @@ Set these environment variables in production:
 ```text
 VITE_SUPABASE_URL=your_supabase_project_url
 VITE_SUPABASE_ANON_KEY=your_supabase_anon_key
+VITE_API_BASE_URL=https://your-deployed-proxy-domain.com/api
 ```
+
+`VITE_API_BASE_URL` must point to the deployed Node proxy. Without it, Netlify will return the React `index.html` for `/api` requests, which causes JSON parse errors in the app.
