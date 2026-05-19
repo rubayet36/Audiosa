@@ -15,10 +15,37 @@ const app = express();
 const PORT = process.env.PORT || 3001;
 let cookiesFilePromise = null;
 
+app.use((req, res, next) => {
+  const origin = req.headers.origin || '*';
+  res.setHeader('Access-Control-Allow-Origin', origin);
+  res.setHeader('Vary', 'Origin');
+  res.setHeader('Access-Control-Allow-Methods', 'GET,POST,OPTIONS');
+  res.setHeader('Access-Control-Allow-Headers', 'Content-Type,Authorization');
+  next();
+});
+
 app.use(cors({
   origin: (origin, callback) => callback(null, true),
+  methods: ['GET', 'POST', 'OPTIONS'],
+  allowedHeaders: ['Content-Type', 'Authorization'],
 }));
+app.options('*', cors());
 app.use(express.json());
+
+app.get('/', (req, res) => {
+  res.json({
+    name: 'Audiosa proxy',
+    status: 'ok',
+    endpoints: ['/api/health', '/api/home', '/api/search?q=song'],
+  });
+});
+
+app.get('/api/health', async (req, res) => {
+  res.json({
+    ok: true,
+    cookiesConfigured: Boolean(process.env.YTDLP_COOKIES_FILE || process.env.YTDLP_COOKIES_CONTENT),
+  });
+});
 
 function sanitizeFileName(value = 'audiosa-track') {
   return value

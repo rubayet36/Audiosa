@@ -1,5 +1,5 @@
 import { useState, useCallback } from 'react';
-import { searchTracks, getStreamUrl } from '../lib/innertube';
+import { getPlayableAudioUrl, searchTracks } from '../lib/innertube';
 import usePlayerStore from '../store/playerStore';
 
 export default function useInnerTube() {
@@ -28,8 +28,7 @@ export default function useInnerTube() {
   const playTrack = useCallback(async (track) => {
     setIsLoading(true);
     try {
-      const { url } = await getStreamUrl(track.id);
-      const enriched = { ...track, streamUrl: url };
+      const enriched = { ...track, streamUrl: getPlayableAudioUrl(track.id) };
       setTrack(enriched);
     } catch (err) {
       setError(`Could not load stream: ${err.message}`);
@@ -44,10 +43,10 @@ export default function useInnerTube() {
   const playAll = useCallback(async (tracks, startIndex = 0) => {
     setIsLoading(true);
     try {
-      const { url } = await getStreamUrl(tracks[startIndex].id);
-      const enriched = tracks.map((t, i) =>
-        i === startIndex ? { ...t, streamUrl: url } : t
-      );
+      const enriched = tracks.map((track) => ({
+        ...track,
+        streamUrl: getPlayableAudioUrl(track.id),
+      }));
       setQueue(enriched, startIndex);
     } catch (err) {
       setError(err.message);

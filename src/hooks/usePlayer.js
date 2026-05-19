@@ -1,6 +1,6 @@
 import { useRef, useEffect } from 'react';
 import usePlayerStore from '../store/playerStore';
-import { getStreamUrl } from '../lib/innertube';
+import { getPlayableAudioUrl } from '../lib/innertube';
 
 export default function usePlayer() {
   const audioRef = useRef(new Audio());
@@ -27,7 +27,7 @@ export default function usePlayer() {
     async function loadAndPlay() {
       setLoading(true);
       try {
-        const streamUrl = currentTrack.streamUrl || (await getStreamUrl(currentTrack.id)).url;
+        const streamUrl = currentTrack.streamUrl || getPlayableAudioUrl(currentTrack.id);
         if (cancelled) return;
 
         audio.src = streamUrl;

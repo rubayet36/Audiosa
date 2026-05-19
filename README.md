@@ -83,6 +83,12 @@ YTDLP_COOKIES_CONTENT=contents_of_your_cookies_txt_file
 
 Then redeploy the Render service. This value belongs on Render only, not Netlify.
 
+The proxy exposes `/api/health`; use it to confirm CORS and deployment:
+
+```text
+https://audiosa-proxy.onrender.com/api/health
+```
+
 Use the Supabase project URL only:
 
 ```text

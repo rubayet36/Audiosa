@@ -2,7 +2,10 @@ const CACHE_NAME = 'audiosa-shell-v1';
 const SHELL_ASSETS = [
   '/',
   '/manifest.webmanifest',
-  '/favicon.svg'
+  '/favicon/favicon.ico',
+  '/favicon/favicon-32x32.png',
+  '/favicon/android-chrome-192x192.png',
+  '/favicon/android-chrome-512x512.png'
 ];
 
 self.addEventListener('install', (event) => {
