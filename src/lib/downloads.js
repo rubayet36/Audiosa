@@ -1,4 +1,4 @@
-import { apiUrl } from './api';
+import { getPlayableAudioUrl } from './innertube';
 
 const DB_NAME = 'audiosa_downloads';
 const DB_VERSION = 1;
@@ -44,14 +44,6 @@ function requestToPromise(request) {
   });
 }
 
-export function sanitizeFileName(value) {
-  return value
-    .replace(/[<>:"/\\|?*]+/g, '')
-    .replace(/\s+/g, ' ')
-    .trim()
-    .slice(0, 90) || 'audiosa-track';
-}
-
 export async function getDownloadedTracks() {
   const tracks = await runStore('readonly', (store) => requestToPromise(store.getAll()));
   return tracks.sort((a, b) => new Date(b.downloadedAt) - new Date(a.downloadedAt));
@@ -67,6 +59,10 @@ export async function saveDownloadedTrack(track, blob) {
     name: track.name,
     artist: track.artist,
     thumbnail: track.thumbnail,
+    streamUrl: track.streamUrl,
+    downloadUrl: track.downloadUrl,
+    downloadAllowed: track.downloadAllowed,
+    source: track.source,
     mimeType: blob.type || 'audio/webm',
     size: blob.size,
     downloadedAt: new Date().toISOString(),
@@ -83,8 +79,12 @@ export async function removeDownloadedTrack(id) {
 
 export async function downloadTrackToLibrary(track) {
   if (!track?.id) throw new Error('Track id is missing');
+  if (track.downloadAllowed === false) {
+    throw new Error('This artist has disabled downloads for this track.');
+  }
 
-  const res = await fetch(apiUrl(`/audio/${track.id}`));
+  const sourceUrl = track.downloadUrl || track.streamUrl || getPlayableAudioUrl(track.id);
+  const res = await fetch(sourceUrl);
   if (!res.ok) {
     const body = await res.json().catch(() => null);
     throw new Error(body?.error || 'Download failed');
@@ -100,7 +100,6 @@ export function createDownloadedTrackUrl(track) {
 }
 
 export function browserDownloadUrl(track) {
-  if (!track?.id) return '#';
-  const title = sanitizeFileName(`${track.name || 'Track'} - ${track.artist || 'Audiosa'}`);
-  return apiUrl(`/download/${track.id}?filename=${encodeURIComponent(title)}`);
+  if (track?.blob) return URL.createObjectURL(track.blob);
+  return track?.downloadUrl || track?.streamUrl || '#';
 }

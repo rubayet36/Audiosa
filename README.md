@@ -1,22 +1,13 @@
 # Audiosa
 
-Audiosa is a React PWA music app built with Vite. It supports music discovery, playback, in-app downloads, recommendations, and partner song sharing through Supabase.
+Audiosa is a React PWA music app built with Vite. It uses Jamendo for legal music search, streaming, and artist-approved downloads, plus Supabase for partner sharing.
 
 ## Local Development
 
-Install dependencies in both the app and proxy folders:
+Install dependencies:
 
 ```bash
 npm install
-cd proxy
-npm install
-```
-
-Run the backend proxy:
-
-```bash
-cd proxy
-npm run dev
 ```
 
 Run the React app:
@@ -39,13 +30,28 @@ http://YOUR_COMPUTER_IP:5173
 
 ## Netlify
 
-The React app can be hosted on Netlify, but the music search, stream, lyrics, and download features require the proxy backend. A static Netlify deploy alone will not make downloads or playback work.
+The app can be hosted as a static Netlify site. A separate Render proxy is no longer required for normal search, playback, or downloads because Jamendo provides public stream and download URLs.
 
-Recommended setup:
+Use these Netlify settings:
 
-- Host the frontend on Netlify.
-- Host the `proxy` server separately on a Node-capable host such as Render, Railway, Fly.io, or a VPS.
-- Update the frontend API base URL for production, or add Netlify redirects that forward `/api/*` to the deployed proxy.
+```text
+Build command: npm run build
+Publish directory: dist
+```
+
+Set these environment variables in Netlify:
+
+```text
+VITE_SUPABASE_URL=your_supabase_project_url
+VITE_SUPABASE_ANON_KEY=your_supabase_anon_key
+VITE_JAMENDO_CLIENT_ID=your_jamendo_client_id
+```
+
+The current Jamendo client ID used during development is:
+
+```text
+VITE_JAMENDO_CLIENT_ID=c672fb4c
+```
 
 ## Supabase
 
@@ -53,41 +59,6 @@ Run `supabase_schema.sql` in the Supabase SQL Editor to add:
 
 - listening history
 - partner shared tracks
-
-Set these environment variables in production:
-
-```text
-VITE_SUPABASE_URL=your_supabase_project_url
-VITE_SUPABASE_ANON_KEY=your_supabase_anon_key
-VITE_API_BASE_URL=https://your-deployed-proxy-domain.com/api
-```
-
-`VITE_API_BASE_URL` must point to the deployed Node proxy. Without it, Netlify will return the React `index.html` for `/api` requests, which causes JSON parse errors in the app.
-
-For Render, either of these works:
-
-```text
-VITE_API_BASE_URL=https://audiosa-proxy.onrender.com
-VITE_API_BASE_URL=https://audiosa-proxy.onrender.com/api
-```
-
-Do not set it to the Netlify/frontend domain.
-
-### YouTube Bot Check On Render
-
-If playback fails with a YouTube "Sign in to confirm you are not a bot" error, add this environment variable to the Render proxy service:
-
-```text
-YTDLP_COOKIES_CONTENT=contents_of_your_cookies_txt_file
-```
-
-Then redeploy the Render service. This value belongs on Render only, not Netlify.
-
-The proxy exposes `/api/health`; use it to confirm CORS and deployment:
-
-```text
-https://audiosa-proxy.onrender.com/api/health
-```
 
 Use the Supabase project URL only:
 
@@ -100,3 +71,7 @@ Do not use:
 ```text
 https://mstoweurzmfoshlwbpkg.supabase.co/rest/v1
 ```
+
+## Legacy Proxy
+
+The `proxy/` folder is still in the repo from the previous YouTube-based version, but Audiosa no longer depends on it after the Jamendo switch.

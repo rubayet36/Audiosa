@@ -32,17 +32,23 @@ export default function TrackCard({ track, onPlay, onDownload, isDownloading = f
             tabIndex={0}
             onClick={(event) => {
               event.stopPropagation();
+              if (track?.downloadAllowed === false) return;
               onDownload(track);
             }}
             onKeyDown={(event) => {
               if (event.key === 'Enter' || event.key === ' ') {
                 event.preventDefault();
                 event.stopPropagation();
+                if (track?.downloadAllowed === false) return;
                 onDownload(track);
               }
             }}
-            className="absolute right-2 top-2 grid h-8 w-8 place-items-center rounded-full bg-black/50 text-white/80 opacity-100 md:opacity-0 md:group-hover:opacity-100 transition-opacity hover:bg-white hover:text-black"
-            title="Save to Downloads"
+            className={`absolute right-2 top-2 grid h-8 w-8 place-items-center rounded-full bg-black/50 opacity-100 transition-opacity md:opacity-0 md:group-hover:opacity-100 ${
+              track?.downloadAllowed === false
+                ? 'text-white/25'
+                : 'text-white/80 hover:bg-white hover:text-black'
+            }`}
+            title={track?.downloadAllowed === false ? 'Download disabled by artist' : 'Save to Downloads'}
           >
             <Download className={`w-4 h-4 ${isDownloading ? 'animate-pulse' : ''}`} />
           </span>

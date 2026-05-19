@@ -28,7 +28,7 @@ export default function useInnerTube() {
   const playTrack = useCallback(async (track) => {
     setIsLoading(true);
     try {
-      const enriched = { ...track, streamUrl: getPlayableAudioUrl(track.id) };
+      const enriched = { ...track, streamUrl: track.streamUrl || getPlayableAudioUrl(track.id) };
       setTrack(enriched);
     } catch (err) {
       setError(`Could not load stream: ${err.message}`);
@@ -45,7 +45,7 @@ export default function useInnerTube() {
     try {
       const enriched = tracks.map((track) => ({
         ...track,
-        streamUrl: getPlayableAudioUrl(track.id),
+        streamUrl: track.streamUrl || getPlayableAudioUrl(track.id),
       }));
       setQueue(enriched, startIndex);
     } catch (err) {

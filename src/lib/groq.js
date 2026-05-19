@@ -25,7 +25,7 @@ export async function getRecommendations(recentTracks) {
     .join(', ');
 
   const prompt = `The user has recently listened to the following tracks: ${trackListString}.
-Based on this, suggest 5 YouTube Music search queries to find similar or recommended music. 
+Based on this, suggest 5 Jamendo music search queries to find similar or recommended music.
 Return ONLY JSON in the following format:
 { "queries": [{ "query": "string (artist or song or genre)", "genre": "string", "reason": "string" }] }`;
 

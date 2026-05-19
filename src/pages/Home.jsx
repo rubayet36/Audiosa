@@ -90,8 +90,8 @@ export default function Home() {
 
       {error && (
         <div className="mb-6 rounded-2xl border border-red-500/20 bg-red-500/10 p-4 text-sm text-red-200">
-          {error.includes('Home') || error.includes('proxy')
-            ? 'Could not connect to the proxy. Run: cd proxy && npm start'
+          {error.includes('Jamendo')
+            ? 'Could not connect to Jamendo. Check your Jamendo client ID and try again.'
             : error}
         </div>
       )}
@@ -122,7 +122,7 @@ export default function Home() {
       {shelves.length === 0 && (
         <div className="glass rounded-2xl p-10 text-center">
           <Music className="w-12 h-12 text-white/20 mx-auto mb-3" />
-          <p className="text-white/40">Start the proxy server to see trending music.</p>
+          <p className="text-white/40">No Jamendo tracks found yet. Try Search or Browse.</p>
         </div>
       )}
 
