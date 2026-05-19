@@ -63,3 +63,15 @@ VITE_API_BASE_URL=https://your-deployed-proxy-domain.com/api
 ```
 
 `VITE_API_BASE_URL` must point to the deployed Node proxy. Without it, Netlify will return the React `index.html` for `/api` requests, which causes JSON parse errors in the app.
+
+Use the Supabase project URL only:
+
+```text
+VITE_SUPABASE_URL=https://mstoweurzmfoshlwbpkg.supabase.co
+```
+
+Do not use:
+
+```text
+https://mstoweurzmfoshlwbpkg.supabase.co/rest/v1
+```

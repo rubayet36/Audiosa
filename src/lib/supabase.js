@@ -1,7 +1,14 @@
 import { createClient } from '@supabase/supabase-js';
 
-// TODO: Replace with real Supabase URL and Anon Key
-const supabaseUrl = import.meta.env.VITE_SUPABASE_URL || 'https://mstoweurzmfoshlwbpkg.supabase.co';
+function normalizeSupabaseUrl(url) {
+  return url
+    .trim()
+    .replace(/\/rest\/v1\/?$/i, '')
+    .replace(/\/+$/, '');
+}
+
+// VITE_SUPABASE_URL must be the project URL, not the REST endpoint.
+const supabaseUrl = normalizeSupabaseUrl(import.meta.env.VITE_SUPABASE_URL || 'https://mstoweurzmfoshlwbpkg.supabase.co');
 const supabaseKey = import.meta.env.VITE_SUPABASE_ANON_KEY || 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6Im1zdG93ZXVyem1mb3NobHdicGtnIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NzkxODQ5NTEsImV4cCI6MjA5NDc2MDk1MX0.QAWVymKkkqGzXlKU5OqpbpcyXuGjwdlqcY6ZIVS-r-E';
 
 export const supabase = createClient(supabaseUrl, supabaseKey);
