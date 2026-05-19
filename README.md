@@ -64,6 +64,15 @@ VITE_API_BASE_URL=https://your-deployed-proxy-domain.com/api
 
 `VITE_API_BASE_URL` must point to the deployed Node proxy. Without it, Netlify will return the React `index.html` for `/api` requests, which causes JSON parse errors in the app.
 
+For Render, either of these works:
+
+```text
+VITE_API_BASE_URL=https://audiosa-proxy.onrender.com
+VITE_API_BASE_URL=https://audiosa-proxy.onrender.com/api
+```
+
+Do not set it to the Netlify/frontend domain.
+
 Use the Supabase project URL only:
 
 ```text

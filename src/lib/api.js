@@ -1,6 +1,16 @@
 const configuredBaseUrl = import.meta.env.VITE_API_BASE_URL?.trim();
 
-export const API_BASE = (configuredBaseUrl || '/api').replace(/\/$/, '');
+function normalizeApiBaseUrl(value) {
+  const baseUrl = (value || '/api').replace(/\/$/, '');
+
+  if (baseUrl === '/api' || baseUrl.endsWith('/api')) {
+    return baseUrl;
+  }
+
+  return `${baseUrl}/api`;
+}
+
+export const API_BASE = normalizeApiBaseUrl(configuredBaseUrl);
 
 export function apiUrl(path) {
   const normalizedPath = path.startsWith('/') ? path : `/${path}`;
