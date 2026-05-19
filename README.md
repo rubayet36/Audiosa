@@ -73,6 +73,16 @@ VITE_API_BASE_URL=https://audiosa-proxy.onrender.com/api
 
 Do not set it to the Netlify/frontend domain.
 
+### YouTube Bot Check On Render
+
+If playback fails with a YouTube "Sign in to confirm you are not a bot" error, add this environment variable to the Render proxy service:
+
+```text
+YTDLP_COOKIES_CONTENT=contents_of_your_cookies_txt_file
+```
+
+Then redeploy the Render service. This value belongs on Render only, not Netlify.
+
 Use the Supabase project URL only:
 
 ```text

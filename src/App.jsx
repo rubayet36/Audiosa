@@ -6,6 +6,7 @@ import SearchPage from './pages/Search';
 import Library from './pages/Library';
 import SettingsPage from './pages/Settings';
 import Player from './components/Player';
+import InstallPrompt from './components/InstallPrompt';
 
 const navItems = [
   { to: '/', label: 'Home', icon: HomeIcon },
@@ -82,6 +83,7 @@ function App() {
               </NavLink>
             ))}
           </nav>
+          <InstallPrompt />
         </main>
       </div>
     </Router>

@@ -7,9 +7,13 @@
 import express from 'express';
 import cors from 'cors';
 import fetch from 'node-fetch';
+import { writeFile } from 'node:fs/promises';
+import { tmpdir } from 'node:os';
+import path from 'node:path';
 
 const app = express();
 const PORT = process.env.PORT || 3001;
+let cookiesFilePromise = null;
 
 app.use(cors({
   origin: (origin, callback) => callback(null, true),
@@ -22,6 +26,28 @@ function sanitizeFileName(value = 'audiosa-track') {
     .replace(/\s+/g, ' ')
     .trim()
     .slice(0, 90) || 'audiosa-track';
+}
+
+async function getCookiesFile() {
+  if (process.env.YTDLP_COOKIES_FILE) return process.env.YTDLP_COOKIES_FILE;
+  if (!process.env.YTDLP_COOKIES_CONTENT) return null;
+
+  if (!cookiesFilePromise) {
+    cookiesFilePromise = writeCookiesFile(process.env.YTDLP_COOKIES_CONTENT);
+  }
+
+  return cookiesFilePromise;
+}
+
+async function writeCookiesFile(content) {
+  const cookiePath = path.join(tmpdir(), 'audiosa-youtube-cookies.txt');
+  const normalizedContent = content.replace(/\\n/g, '\n');
+  await writeFile(cookiePath, normalizedContent, 'utf8');
+  return cookiePath;
+}
+
+function isYoutubeBotError(error) {
+  return /sign in to confirm|not a bot|cookies-from-browser|authentication/i.test(error?.message || '');
 }
 
 // --- InnerTube Config ---
@@ -86,9 +112,12 @@ import youtubedl from 'youtube-dl-exec';
 
 async function extractBestAudio(videoId) {
   const url = `https://www.youtube.com/watch?v=${videoId}`;
-  const output = await youtubedl(url, {
+  const cookiesFile = await getCookiesFile();
+  const options = {
     dumpJson: true,
     format: 'bestaudio',
+    forceIpv4: true,
+    geoBypass: true,
     noCheckCertificates: true,
     noWarnings: true,
     preferFreeFormats: true,
@@ -96,7 +125,13 @@ async function extractBestAudio(videoId) {
       'referer:youtube.com',
       'user-agent:Mozilla/5.0 (Windows NT 10.0; Win64; x64)'
     ]
-  });
+  };
+
+  if (cookiesFile) {
+    options.cookies = cookiesFile;
+  }
+
+  const output = await youtubedl(url, options);
 
   if (!output || !output.url) {
     throw new Error('yt-dlp could not extract a stream URL');
@@ -124,7 +159,11 @@ app.get('/api/stream/:videoId', async (req, res) => {
     });
   } catch (err) {
     console.error(`[stream] Error for ${videoId}:`, err.message);
-    res.status(500).json({ error: err.message });
+    res.status(500).json({
+      error: isYoutubeBotError(err)
+        ? 'YouTube blocked this server. Add YTDLP_COOKIES_CONTENT in Render with cookies.txt content, then redeploy.'
+        : err.message,
+    });
   }
 });
 
@@ -165,7 +204,13 @@ async function proxyAudio(req, res, asAttachment = false) {
     });
   } catch (err) {
     console.error(`[audio] Error for ${videoId}:`, err.message);
-    if (!res.headersSent) res.status(500).json({ error: err.message });
+    if (!res.headersSent) {
+      res.status(500).json({
+        error: isYoutubeBotError(err)
+          ? 'YouTube blocked this server. Add YTDLP_COOKIES_CONTENT in Render with cookies.txt content, then redeploy.'
+          : err.message,
+      });
+    }
   }
 }
 
